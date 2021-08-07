@@ -1,16 +1,9 @@
 
-
-setwd("C:/Users/jason/OneDrive/Documents/ONA Code/Network Program/Data")
+setwd("example_code/data")
 
 edge_df <- read.csv("stack_network_links.csv")
 node_df <- read.csv("stack_network_nodes.csv")
 
+setwd("..")
 
-network_object <- create_network_object(edge_df = edge_df, node_df = node_df, directed = FALSE)
-
-diameter(network_object)
-edge_density(network_object)
-
-communities <- edge.betweenness.community(network_object)
-
-communities[9]
+rmarkdown::render("stack_overflow_example_markdown.Rmd")

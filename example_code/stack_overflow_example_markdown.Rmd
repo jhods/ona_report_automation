@@ -1,0 +1,93 @@
+---
+title: "Stack Overflow Example"
+author: "Jason Hodson"
+date: '`r Sys.Date()`'
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    smooth_scroll: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+setwd('..')
+source("code/functions.R")
+```
+
+# Introduction
+
+RMarkdown files can be an easy way to automate report generation.  I've found them particularly helpful when needing to loop over a large number of groups and/or metrics.  This is a simple example for generating an ONA report with RMarkdown
+
+# Network Graph
+
+While network graphs can look cool, they're often not practical if you're trying to communicate to an audience who isn't familiar with network analysis.  The names of the skills/technologies in particular make the graph difficult to read.
+
+``` {r network_graph}
+
+#read in data
+edge_df <- read.csv("data/stack_network_links.csv")
+node_df <- read.csv("data/stack_network_nodes.csv")
+
+#create network object from dataframes
+g <- create_network_object(edge_df, node_df, directed = FALSE)
+
+#plot network graph
+create_basic_network_graph(network_object = g, show_labels = TRUE)
+
+```
+
+One easy thing you can do to clean up a network graph is to remove the names/labels.  In an ONA setting, if your group is larger than 20-30 employees, showing all labels will likely make the graph too busy.  Using things like color to identify a single person can be a more effective method.
+
+I usually start with a network graph to get a high level perspective of the network and what metrics may be helpful to start with.  With this network of skills/technologies referenced on Stack Overflow, you can see there are a number of clusters/communities.  Some of these clusters look to be closely connected and larger, while others are quite small.
+
+``` {r network_graph_no_labels}
+
+#plot network graph
+create_basic_network_graph(network_object = g, show_labels = FALSE)
+
+```
+
+# Metrics
+
+Using the metrics associated with network analysis are critical when using in a business setting.  Stopping at the network graphs will make explaining the benefits of the analysis challenging.  Plus the majority of the benefits of network analysis reside with the statistics!
+
+## Diameter
+A simple metrics to see the connectedness of a network is diameter.  This will measure the greatest distance between two nodes in the network.  In this example, we'd expect a larger distance.  In an ONA setting, when looking at a specific department, you'd expect this number to be smaller (hopefully around 2 or 3).  Think about this as how to measure the [Kevin Bacon six degrees of separation concept](https://en.wikipedia.org/wiki/Six_Degrees_of_Kevin_Bacon#:~:text=It%20rests%20on%20the%20assumption,or%20fewer%20acquaintance%20links%20apart.).
+
+Igraph makes calculating most of these network statistics quite easy.  Diameter is calculated as you see below.  Seeing a diameter of 10 isn't necessarily surprising in the Stack Overflow context, however it may be a bit alarming if doing ONA on a department.
+
+```{r diameter, echo=TRUE}
+
+diameter(g)
+
+```
+
+## Density
+Diameter isn't a very robust metric, as its only looking for the longest distance between nodes in the network.  Its possible to have a very large diameter in a closely connected network.  Density is a metric that can provide us a more robust metric to evaluate the network. 
+
+While a more complex calculation, density can still be easily explained.  Its evaluating the total connections compared to the total connections that are possible.  For the Stack Overflow example, the 0.075 number tells us that 7.5% of the possible connections between skills/technologies are actually be made.  If you saw these results in an ONA context, this could be cause for concern if looking at just a specific department.
+
+```{r density, echo=TRUE}
+
+edge_density(g)
+
+```
+
+
+## Communities
+As noted in the network graph section, you can see a number of clusters.  Rather than looking at the graph, there are a number of algorithms available to quantitatively identify these clusters.
+
+For this example, we'll use the edge.betweeness.community function to see the first community cluster.
+
+``` {r communities}
+
+communities <- edge.betweenness.community(g)
+print(communities[1])
+
+```
+
+
+
+

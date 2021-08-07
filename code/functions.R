@@ -13,6 +13,7 @@ complete_ona_process <- function(edge_df,
   
   
   
+  
 }
 
 create_network_object <- function(edge_df, node_df, directed) {
@@ -27,5 +28,19 @@ create_network_object <- function(edge_df, node_df, directed) {
 
 
 
-
+create_basic_network_graph <- function(network_object, show_labels) {
+  
+  if (show_labels == TRUE) {
+    
+    plot(network_object, vertex.size = 3, vertex.label.cex = .6, vertex.label.dist=.5)
+    
+  } else {
+    
+    plot(network_object, vertex.size = 3, vertex.label = NA)
+    
+  }
+  
+  
+  
+}
 
